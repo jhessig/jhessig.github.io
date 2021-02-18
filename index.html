@@ -2,12 +2,54 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Index</title>
-</head>
-<body>
+  <title>CIT 140 Programming Project 5</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.2/handlebars.min.js"></script>
 
-  <h1>Github Index Page</h1>
-  
-  <p>Hello Github!</p>
-  
-</body></html>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Select a Major</h1>
+    <div style="padding: 5px;">
+      <button type="button" class="btn" onclick="getData('CIT')">CIT Majors</button>
+      <button type="button" class="btn" onclick="getData('BUS')">Business Majors</button>
+    </div>
+  </div>
+  <h3>We filter out dataset by major</h3>
+  <div id="result"></div>
+</body>
+
+<script id="tableTemplate" type="text/x-handlebars-template">
+  <table>
+    <tr><th>Name</th><th>Major</th><th>Midterm</th><th>Final</th></tr>
+    {{#each rows}}
+      <tr>
+        <td>{{name}}</td><td>{{major}}</td><td>{{midterm}}</td><td>{{final}}</td>
+      </tr>
+    {{/each}}
+  </table>
+</script>
+<script>
+  function getData(selectedMajor) {
+    var request = new XMLHttpRequest();
+    request.open('GET', 'cit5students.json');
+    request.onload = function () {
+      var data = JSON.parse(request.responseText);
+      var students = data.filter(getStudents);
+      function getStudents(student) {
+        return student.major == selectedMajor;
+      }
+      if(request.status == 200) {
+        var templateText = document.getElementById('tableTemplate').innerHTML;
+        var compiledTemplateText = Handlebars.compile(templateText);
+        var compiledHtml = compiledTemplateText({ rows: students });
+        document.getElementById('result').innerHTML = compiledHtml;
+      }
+      else {
+        document.querySelector('#result').innerHTML = "Error.";
+      }
+    }
+    request.send(null);
+  }
+</script>
+</html>
